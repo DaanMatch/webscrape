@@ -20,7 +20,8 @@ class HelpYourNgoSpider(scrapy.Spider):
             List of all the links on the homepage  
         """
         ngo_links = response.css('.font14 a')
-        yield from response.follow_all(ngo_links, self.parse_ngo)
+        print(ngo_links)
+        #yield from response.follow_all(ngo_links, self.parse_ngo)
 
 
     def parse_ngo(self, response):
