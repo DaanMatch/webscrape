@@ -4,7 +4,6 @@ import scrapy
 
 class HelpYourNgoSpider(scrapy.Spider):
     name = 'HelpYourNgo'
-    # allowed_domains = ['https://www.helpyourngo.com/ngos-by-region-v1.php']
     start_urls = ['https://www.helpyourngo.com/ngos-by-region-v1.php']
 
 
