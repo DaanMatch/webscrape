@@ -1,16 +1,17 @@
 import scrapy
 
 
-class IndiangolistScraperSpider(scrapy.Spider):
-    name = 'indiangolist_scraper'
-    allowed_domains = ['indiangolist.com']
-    start_urls = ['http://indiangolist.com/']
+class IndiangoslistSpiderSpider(scrapy.Spider):
+    name = 'indiangoslist_spider'
+    allowed_domains = ['indiangoslist.com']
+    start_urls = ['http://indiangoslist.com/']
 
     def parse_home_page(self,response):
         #get all hyperlinks of states on the home page
         state_links = response.css("li > h3 > a::attr('href')")
         #for each link, call function parse_state
         yield from response.follow_all(state_links, self.parse_state)
+
     def parse_state(self, response):
         #For each NGO on that page, get it into ngo_links
         ngo_links = response.css(".title > a::attr('href')")
@@ -27,11 +28,7 @@ class IndiangolistScraperSpider(scrapy.Spider):
         ngo_right = response.css(".ngo_right_head::text").extract()
         #get the right row
         span = response.xpath("//*[@class='ngo_right_head']//text()")
-        #remove spaces and newlines
-        span = [s.strip() for s in span.extract()]
-        #remove spaces if they exist
-        if ' ' in ngo_left:
-            ngo_left.remove(' ')
+        
         #export the result
         for item in zip(ngo_left, span):
             scraped = {
