@@ -12,7 +12,7 @@ BOT_NAME = 'ngodarpan_scraper'
 SPIDER_MODULES = ['ngodarpan_scraper.spiders']
 NEWSPIDER_MODULE = 'ngodarpan_scraper.spiders'
 
-
+LOG_LEVEL = 'INFO'
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'ngodarpan_scraper (+http://www.yourdomain.com)'
 
