@@ -32,12 +32,6 @@ class NgodarpanSpider(scrapy.Spider):
         if response.status == 200:
             self.logger.info("Getting links to statewise lists.")
             try:
-                """
-                for href in response.css("ol.rounded-list li  a::attr(href)"):
-                    self.logger.info(href)
-                    url = response.urljoin(href.extract())
-                    yield scrapy.Request(url, callback = self.parseState)
-                """
                 stateLinks = response.css("ol.rounded-list li  a::attr(href)")
                 yield from response.follow_all(stateLinks, callback=self.parseState)
             except:
@@ -49,16 +43,6 @@ class NgodarpanSpider(scrapy.Spider):
         self.logger.info("Parse ngos in State.")
         try: 
             for row in response.xpath('//*[@class="table table-striped table-bordered table-hover Tax"]//tbody/tr'):
-                """
-                ngo = NgoDarpanNgo()
-                ngo['SrNo'] = row.xpath('td[1]//text()').extract_first()
-                ngo['Name'] = row.xpath('td[2]//text()').extract_first()
-                ngo['Registration'] = row.xpath('td[3]//text()').extract_first()
-                ngo['Address'] = row.xpath('td[4]//text()').extract_first()
-                ngo['SectorWorking'] = row.xpath('td[5]//text()').extract_first()
-                self.logger.info(ngo)
-                yield ngo
-                """
                 yield {
                     'SrNo':  row.xpath('td[1]//text()').extract_first(),
                     'Name': row.xpath('td[2]/a//text()').extract_first(),
@@ -69,5 +53,9 @@ class NgodarpanSpider(scrapy.Spider):
         except:
             self.logger.info(f"Failed at parseStates {response}.")
             pass
-        nextPage = response.css(".pagination > a::attr('href')")
-        yield from response.follow_all(nextPage, self.parseState) 
+
+
+
+
+#        nextPage = response.css(".pagination > a::attr('href')")
+#        yield from response.follow_all(nextPage, self.parseState) 
