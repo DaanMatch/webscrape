@@ -48,9 +48,8 @@ class NgodarpanSpider(scrapy.Spider):
     def parseState(self, response):
         self.logger.info("Parse ngos in State.")
         try: 
-            yield response.css('.table>tbody>tr>td::text')[1].extract()
-
             for row in response.xpath('//*[@class="table table-striped table-bordered table-hover Tax"]//tbody/tr'):
+                """
                 ngo = NgoDarpanNgo()
                 ngo['SrNo'] = row.xpath('td[1]//text()').extract_first()
                 ngo['Name'] = row.xpath('td[2]//text()').extract_first()
@@ -59,8 +58,16 @@ class NgodarpanSpider(scrapy.Spider):
                 ngo['SectorWorking'] = row.xpath('td[5]//text()').extract_first()
                 self.logger.info(ngo)
                 yield ngo
+                """
+                yield {
+                    'SrNo':  row.xpath('td[1]//text()').extract_first(),
+                    'Name': row.xpath('td[2]/a//text()').extract_first(),
+                    'Registration': row.xpath('td[3]//text()').extract_first(),
+                    'Address': row.xpath('td[4]//text()').extract_first(),
+                    'SectorWorking': row.xpath('td[5]//text()').extract_first()
+                }
         except:
             self.logger.info(f"Failed at parseStates {response}.")
             pass
-       #nextPage = response.css(".pagination > a::attr('href')")
-        #yield from response.follow_all(nextPage, self.parseState) 
+        nextPage = response.css(".pagination > a::attr('href')")
+        yield from response.follow_all(nextPage, self.parseState) 
