@@ -1,9 +1,9 @@
 import scrapy
 import numpy as np
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+#from selenium import webdriver
+#from selenium.webdriver.common.by import By
+#from selenium.webdriver.support.ui import WebDriverWait
+#from selenium.webdriver.support import expected_conditions as EC
 
 class Ngo(scrapy.Item): 
     name = scrapy.Field()
@@ -41,7 +41,7 @@ class NgodarpanSpider(scrapy.Spider):
             self.logger.info(f"Running parse function on {response}")
             try:
                 # Trying to click more details
-                moreDetails = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "///*[@id='ngos-more-details']/a"))).click()
+                moreDetails = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//*[@id='ngos-more-details']/a"))).click()
                 ngo_count = 0
                 for elem in moreDetails:
                     elem.click()
@@ -64,7 +64,7 @@ class NgodarpanSpider(scrapy.Spider):
             except:
                 self.logger.info(f"Failed at parse for {response}.")
         else:
-            self.logger.info('Invalid response.')
+            self.logger.error('Invalid response.')
 
 
 
