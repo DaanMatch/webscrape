@@ -40,31 +40,30 @@ class NgodarpanSpider(scrapy.Spider):
         if response.status == 200:
             self.logger.info(f"Running parse function on {response}")
             try:
-
-            
-                WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "///*[@id='ngos-more-details']/a"))).click()
-                moreDetails = WebDriverWait(driver, 20).until(EC.visibility_of_all_elements_located((By.XPATH, "//a[@class='toggle-button']//span")))
-                for elem in elements:
+                # Trying to click more details
+                moreDetails = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "///*[@id='ngos-more-details']/a"))).click()
+                ngo_count = 0
+                for elem in moreDetails:
                     elem.click()
-
-                stateLinks = response.css("ol.rounded-list li  a::attr(href)")
-                yield from response.follow_all(stateLinks, callback=self.parseState)
+                    ngo = Ngo()
+                    ngo["name"] = scrapy.Field()
+                    ngo["address"] = scrapy.Field()
+                    ngo["city"] = scrapy.Field()
+                    ngo["state"] = scrapy.Field()
+                    ngo["telephone"] = scrapy.Field()
+                    ngo["mobile"] = scrapy.Field()
+                    ngo["website"] = scrapy.Field()
+                    ngo["email"] = scrapy.Field()
+                    ngo["ngoType"] = scrapy.Field()
+                    ngo["regNo"] = scrapy.Field()
+                    ngo["regDate"] = scrapy.Field()
+                    ngo["areasOfHelp"] = scrapy.Field()
+                    yield ngo
+                    ngo_count += 1
             except:
                 self.logger.info(f"Failed at parse for {response}.")
         else:
             self.logger.info('Invalid response.')
 
 
-ngo = Ngo()
-ngo["name"] = scrapy.Field()
-ngo["address"] = scrapy.Field()
-ngo["city"] = scrapy.Field()
-ngo["state"] = scrapy.Field()
-ngo["telephone"] = scrapy.Field()
-ngo["mobile"] = scrapy.Field()
-ngo["website"] = scrapy.Field()
-ngo["email"] = scrapy.Field()
-ngo["ngoType"] = scrapy.Field()
-ngo["regNo"] = scrapy.Field()
-ngo["regDate"] = scrapy.Field()
-ngo["areasOfHelp"] = scrapy.Field()
+
