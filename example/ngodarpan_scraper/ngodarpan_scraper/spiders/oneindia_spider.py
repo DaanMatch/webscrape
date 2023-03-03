@@ -40,12 +40,16 @@ class NgodarpanSpider(scrapy.Spider):
         if response.status == 200:
             self.logger.info(f"Running parse function on {response}")
             try:
+
+            
+                WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "///*[@id='ngos-more-details']/a"))).click()
+                moreDetails = WebDriverWait(driver, 20).until(EC.visibility_of_all_elements_located((By.XPATH, "//a[@class='toggle-button']//span")))
+                for elem in elements:
+                    elem.click()
+
                 stateLinks = response.css("ol.rounded-list li  a::attr(href)")
                 yield from response.follow_all(stateLinks, callback=self.parseState)
             except:
                 self.logger.info(f"Failed at parse for {response}.")
         else:
             self.logger.info('Invalid response.')
-
-//*[@id="container"]/section/div/div[2]/section[2]/div/div/div[1]/div[1]
-            //*[@id="container"]/section/div/div[2]/section[2]/div/div/div[1]/div[1]
