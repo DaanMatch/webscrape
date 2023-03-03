@@ -1,39 +1,32 @@
 import scrapy
 from scrapy.item import Field
-from scrapy import Request
-from scrapy.selector import Selector
-
-class StateLinks(scrapy.Item):
-    link = Field()
 
 class NgosIndiaSpider(scrapy.Spider):
     name = 'ngosIndia_spider'
-    allowed_domains = ['ngosindia.com']
-    start_urls = ['https://ngosindia.com/ngos-of-india/']
+    allowed_domains = ['ngosindia.org']
+    start_urls = ['https://ngosindia.org/ngos-india/']
 
     def parse(self, response):
         self.logger.info(f'Extract link to each state in {response}')
-        
-        # Print out all links to each State 
-        for div in response.xpath('//*[@class="ngo-layout-cell layout-item-3"]/div[3]'):
-            state = StateLinks()
-            state['link'] = div.xpath('div/ul/li/strong/a//@href').extract()
-            yield state
-
-        # Get all links for each state
-        for div in response.xpath('//*[@class="ngo-layout-cell layout-item-3"]/div[3]'):
-            stateLinks = div.xpath('div/ul/li/strong/a//@href').getall()
-            #self.logger.info(f"State Links: {stateLinks}")
-            
-            # Loop through all links and yield a request
-            for stateLink in stateLinks:
-                self.logger.info(f"State Link: {stateLink}")
-                #yield Request(stateLink, self.parseState)
+        #get all hyperlinks of states on the home page
+        stateLinks = response.css('.npos-layout-cell ul li a::attr("href")')
+        #for each links, call function parseState
+        yield from response.follow_all(stateLinks, self.parseState)      
 
     def parseState(self, response):
-        sel = Selector(response)
-        self.logger.info(f'Extract link to each district in {sel}')
-        for li in sel.xpath('//*[@class="npos-postcontent clearfix"]/ul'):
-            yield {
-                "districtLink": li.xpath('li/a//@href').extract()
-            }
+        self.logger.info(f'Extract link to each ngo in {response}')
+        #get all hyperlinks of ngos on the state page
+        ngoLinks = response.css('.lcp_catlist li a::attr("href")')
+        #for each links, call function parseNGo
+        yield from response.follow_all(ngoLinks, self.parseNGO)
+        #gets all links from the pagination
+        ngo_next = response.css(".lcp_paginator li a::attr('href')")
+        #call parseState on every links 
+        yield from response.follow_all(ngo_next,self.parseState) 
+
+    def parseNGO(self, response):
+        self.logger.info(f'Extract ngo information in {response}')
+        #get all hyperlinks of ngos on the state page
+        yield {
+            'data': response.css('.npos-postcontent p ::text').getall()
+        }
