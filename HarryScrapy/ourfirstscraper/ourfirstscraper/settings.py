@@ -19,6 +19,16 @@ FEED_URI = "IndiaNGO.csv"
 FEED_FORMAT = "csv"
 FEED_URI = "IndiaNGO.json"
 
+# for Chrome driver 
+from shutil import which
+  
+SELENIUM_DRIVER_NAME = 'chrome'
+SELENIUM_DRIVER_EXECUTABLE_PATH = which('chromedriver')
+SELENIUM_DRIVER_ARGUMENTS=['--headless']  
+  
+DOWNLOADER_MIDDLEWARES = {
+     'scrapy_selenium.SeleniumMiddleware': 800
+     }
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'ourfirstscraper (+http://www.yourdomain.com)'
