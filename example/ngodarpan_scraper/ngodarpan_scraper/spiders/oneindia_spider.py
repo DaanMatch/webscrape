@@ -1,9 +1,9 @@
 import scrapy
 import numpy as np
-#from selenium import webdriver
-#from selenium.webdriver.common.by import By
-#from selenium.webdriver.support.ui import WebDriverWait
-#from selenium.webdriver.support import expected_conditions as EC
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 class Ngo(scrapy.Item): 
     name = scrapy.Field()
@@ -30,7 +30,7 @@ class NgodarpanSpider(scrapy.Spider):
 
     def parse(self, response):
 
-        # driver = webdriver.Chrome()  # To open a new browser window and navigate it
+        driver = webdriver.Chrome()  # To open a new browser window and navigate it
         # Use headless option to not open a new browser window
         options = webdriver.ChromeOptions()
         options.add_argument("headless")
