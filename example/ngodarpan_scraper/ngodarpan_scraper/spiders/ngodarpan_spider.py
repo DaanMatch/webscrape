@@ -42,6 +42,7 @@ class NgodarpanSpider(scrapy.Spider):
     def parseState(self, response):
         self.logger.info("Parse ngos in State.")
         try: 
+            ngo_count = 0
             for row in response.xpath('//*[@class="table table-striped table-bordered table-hover Tax"]//tbody/tr'):
                 yield {
                     'SrNo':  row.xpath('td[1]//text()').extract_first(),
@@ -50,6 +51,8 @@ class NgodarpanSpider(scrapy.Spider):
                     'Address': row.xpath('td[4]//text()').extract_first(),
                     'SectorWorking': row.xpath('td[5]//text()').extract_first()
                 }
+                ngo_count += 1
+            self.logger.info(f"Total number of NGos in {response}: {ngo_count}")
         except:
             self.logger.info(f"Failed at parseStates {response}.")
             pass
