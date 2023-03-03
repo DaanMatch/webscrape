@@ -46,8 +46,9 @@ class NgodarpanSpider(scrapy.Spider):
                 for elem in moreDetails:
                     elem.click()
                     ngo = Ngo()
-                    ngo["name"] = scrapy.Field()
-                    ngo["address"] = scrapy.Field()
+                    ngo["name"] = response.xpath('//*[@class="ngo-popup-head"]//text()').extract_first()
+                    # Contact details table
+                    ngo["address"] = response.xpath('//*[@class="ngo-popup-head"]//text()').extract_first()
                     ngo["city"] = scrapy.Field()
                     ngo["state"] = scrapy.Field()
                     ngo["telephone"] = scrapy.Field()
