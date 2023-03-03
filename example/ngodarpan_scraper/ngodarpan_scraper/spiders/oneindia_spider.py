@@ -53,3 +53,18 @@ class NgodarpanSpider(scrapy.Spider):
                 self.logger.info(f"Failed at parse for {response}.")
         else:
             self.logger.info('Invalid response.')
+
+
+ngo = Ngo()
+ngo["name"] = scrapy.Field()
+ngo["address"] = scrapy.Field()
+ngo["city"] = scrapy.Field()
+ngo["state"] = scrapy.Field()
+ngo["telephone"] = scrapy.Field()
+ngo["mobile"] = scrapy.Field()
+ngo["website"] = scrapy.Field()
+ngo["email"] = scrapy.Field()
+ngo["ngoType"] = scrapy.Field()
+ngo["regNo"] = scrapy.Field()
+ngo["regDate"] = scrapy.Field()
+ngo["areasOfHelp"] = scrapy.Field()
