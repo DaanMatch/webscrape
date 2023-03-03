@@ -13,4 +13,5 @@ It is an internet bot that helps in web indexing. It collects information from a
 ## Prerequisites
 ```
 pip install scrapy
+pip install scrapy-selenium
 ```
