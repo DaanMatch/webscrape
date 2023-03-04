@@ -65,6 +65,3 @@ class NgodarpanSpider(scrapy.Spider):
                 self.logger.info(f"Failed at parse for {response}.")
         else:
             self.logger.error('Invalid response.')
-
-
-
