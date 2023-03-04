@@ -1,9 +1,12 @@
 import scrapy
-import numpy as np
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
+from scrapy.selector import Selector
+import time
 
 class Ngo(scrapy.Item): 
     name = scrapy.Field()
@@ -20,48 +23,54 @@ class Ngo(scrapy.Item):
     areasOfHelp = scrapy.Field()
 
 
-class NgodarpanSpider(scrapy.Spider):
+class OneIndiaSpider(scrapy.Spider):
     name = 'oneindia_spider'
     allowed_domains = ["oneindia.com"]
+    start_urls = ['https://www.oneindia.com/ngos.html']
 
-    def start_requests(self):
-        url = 'https://www.oneindia.com/ngos-in-chandigarh-6.html'
-        yield scrapy.Request(url=url, callback=self.parse)
+    def __init__(self):
+        self.driver = webdriver.Chrome()
 
     def parse(self, response):
+        self.logger.info(f'Extract link to each state in {response}')
+        #get all hyperlinks of states on the home page
+        stateLinks = response.css('.ngo-state-btn-block div ul li a::attr("href")')
+        #for each links, call function parseState
+        yield from response.follow_all(stateLinks, self.parseState)      
+        # Note the website splits the NGOs by state and also by NGO sectors, so there may be duplicates. These can be processed later.
 
-        driver = webdriver.Chrome()  # To open a new browser window and navigate it
-        # Use headless option to not open a new browser window
-        options = webdriver.ChromeOptions()
-        options.add_argument("headless")
-        desired_capabilities = options.to_capabilities()
-        driver = webdriver.Chrome(desired_capabilities=desired_capabilities)
+    def parseState(self, response):
+        # wait for the more details button to be present
+        WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//*[@id='ngos-more-details']/a")))
+        moreDetailsButtons = self.driver.find_elements_by_xpath("//*[@id='ngos-more-details']/a")
+        ngo_count = 0
+        # Loop through all more details buttons
+        for i in range(len(moreDetailsButtons)):
+            # Click the ith button to open ith overlay
+            moreDetailsButtons[i].click()
+            # Scrape overlay data
+            ngo = Ngo()
+            ngo["name"] = response.xpath('//*[@class="ngo-popup-head"]//text()').get()
+            # Contact details table
+            ngo["address"] = response.xpath('//*[@class="ngo-popup-container"]/div[2]/div[2]/table/tbody/tr[1]/td[2]//text()').get()
+            ngo["city"] = response.xpath('//*[@class="ngo-popup-container"]/div[2]/div[2]/table/tbody/tr[2]/td[2]//text()').get()
+            ngo["state"] = response.xpath('//*[@class="ngo-popup-container"]/div[2]/div[2]/table/tbody/tr[3]/td[2]//text()').get()
+            ngo["telephone"] = response.xpath('//*[@class="ngo-popup-container"]/div[2]/div[2]/table/tbody/tr[4]/td[2]//text()').get()
+            ngo["mobile"] = response.xpath('//*[@class="ngo-popup-container"]/div[2]/div[2]/table/tbody/tr[5]/td[2]//text()').get()
+            ngo["website"] =response.xpath('//*[@class="ngo-popup-container"]/div[2]/div[2]/table/tbody/tr[6]/td[2]//text()').get()
+            ngo["email"] = response.xpath('//*[@class="ngo-popup-container"]/div[2]/div[2]/table/tbody/tr[7]/td[2]//text()').get()
+            # Registration details table
+            ngo["ngoType"] = response.xpath('//*[@class="ngo-popup-container"]/div[3]/div[2]/table/tbody/tr[1]/td[2]//text()').get()
+            ngo["regNo"] = response.xpath('//*[@class="ngo-popup-container"]/div[3]/div[2]/table/tbody/tr[2]/td[2]//text()').get()
+            ngo["regDate"] = response.xpath('//*[@class="ngo-popup-container"]/div[3]/div[2]/table/tbody/tr[3]/td[2]//text()').get()
+            # Areas of help table
+            ngo["areasOfHelp"] = response.xpath('//*[@class="ngo-popup-container"]/div[4]/div[2]/table/tbody/tr[1]/td//text()').get()
+            yield ngo
+            
+            ngo_count += 1
+            # Wait 5 seconds
+            time.sleep(5)
+    
+    def closed(self, reason):
+        self.driver.quit()
 
-        if response.status == 200:
-            self.logger.info(f"Running parse function on {response}")
-            try:
-                # Trying to click more details
-                moreDetails = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//*[@id='ngos-more-details']/a"))).click()
-                ngo_count = 0
-                for elem in moreDetails:
-                    elem.click()
-                    ngo = Ngo()
-                    ngo["name"] = response.xpath('//*[@class="ngo-popup-head"]//text()').extract_first()
-                    # Contact details table
-                    ngo["address"] = response.xpath('//*[@class="ngo-popup-head"]//text()').extract_first()
-                    ngo["city"] = scrapy.Field()
-                    ngo["state"] = scrapy.Field()
-                    ngo["telephone"] = scrapy.Field()
-                    ngo["mobile"] = scrapy.Field()
-                    ngo["website"] = scrapy.Field()
-                    ngo["email"] = scrapy.Field()
-                    ngo["ngoType"] = scrapy.Field()
-                    ngo["regNo"] = scrapy.Field()
-                    ngo["regDate"] = scrapy.Field()
-                    ngo["areasOfHelp"] = scrapy.Field()
-                    yield ngo
-                    ngo_count += 1
-            except:
-                self.logger.info(f"Failed at parse for {response}.")
-        else:
-            self.logger.error('Invalid response.')
