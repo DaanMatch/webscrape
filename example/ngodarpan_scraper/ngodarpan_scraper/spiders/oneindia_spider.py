@@ -41,8 +41,8 @@ class OneIndiaSpider(scrapy.Spider):
 
     def parseState(self, response):
         # wait for the more details button to be present
-        WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//*[@id='ngos-more-details']/a")))
-        moreDetailsButtons = self.driver.find_elements_by_xpath("//*[@id='ngos-more-details']/a")
+        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, "//*[@id='ngos-more-details']/a//@href")))
+        moreDetailsButtons = self.driver.find_elements_by_xpath("//*[@id='ngos-more-details']/a//@href")
         ngo_count = 0
         # Loop through all more details buttons
         for i in range(len(moreDetailsButtons)):

@@ -19,6 +19,17 @@ LOG_LEVEL = 'INFO'
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
 
+# for Chrome driver 
+from shutil import which
+  
+SELENIUM_DRIVER_NAME = 'chrome'
+SELENIUM_DRIVER_EXECUTABLE_PATH = which('chromedriver')
+SELENIUM_DRIVER_ARGUMENTS=['--headless']  
+  
+DOWNLOADER_MIDDLEWARES = {
+     'scrapy_selenium.SeleniumMiddleware': 800
+     }
+
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
 
