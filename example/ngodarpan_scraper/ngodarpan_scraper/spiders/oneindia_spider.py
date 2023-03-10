@@ -3,10 +3,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from scrapy_selenium import SeleniumRequest
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
-from scrapy.selector import Selector
-import time
 
 class Ngo(scrapy.Item): 
     name = scrapy.Field()
@@ -40,6 +38,10 @@ class OneIndiaSpider(scrapy.Spider):
         # Note the website splits the NGOs by state and also by NGO sectors, so there may be duplicates. These can be processed later.
 
     def parseState(self, response):
+        self.logger.info(f'Extract information to each ngo in {response}')
+        # Scroll to the bottom of the page to load all elements
+        self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        """
         # wait for the more details button to be present
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, "//*[@id='ngos-more-details']/a//@href")))
         moreDetailsButtons = self.driver.find_elements_by_xpath("//*[@id='ngos-more-details']/a//@href")
@@ -48,6 +50,7 @@ class OneIndiaSpider(scrapy.Spider):
         for i in range(len(moreDetailsButtons)):
             # Click the ith button to open ith overlay
             moreDetailsButtons[i].click()
+            self.logger.info(f'Button {i} clicked')
             # Scrape overlay data
             ngo = Ngo()
             ngo["name"] = response.xpath('//*[@class="ngo-popup-head"]//text()').get()
@@ -65,11 +68,10 @@ class OneIndiaSpider(scrapy.Spider):
             ngo["regDate"] = response.xpath('//*[@class="ngo-popup-container"]/div[3]/div[2]/table/tbody/tr[3]/td[2]//text()').get()
             # Areas of help table
             ngo["areasOfHelp"] = response.xpath('//*[@class="ngo-popup-container"]/div[4]/div[2]/table/tbody/tr[1]/td//text()').get()
-            yield ngo
-            
+            yield ngo 
             ngo_count += 1
-            # Wait 5 seconds
-            time.sleep(5)
+        """
+
     
     def closed(self, reason):
         self.driver.quit()
