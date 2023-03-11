@@ -1,10 +1,6 @@
 import scrapy
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from scrapy_selenium import SeleniumRequest
-from selenium.webdriver.common.keys import Keys
+from scrapy import Request
 
 class Ngo(scrapy.Item): 
     name = scrapy.Field()
@@ -24,23 +20,31 @@ class Ngo(scrapy.Item):
 class OneIndiaSpider(scrapy.Spider):
     name = 'oneindia_spider'
     allowed_domains = ["oneindia.com"]
-    start_urls = ['https://www.oneindia.com/ngos.html']
 
-    def __init__(self):
-        self.driver = webdriver.Chrome()
+    def start_requests(self):
+        yield SeleniumRequest(
+            url='https://www.oneindia.com/ngos-in-chandigarh-6.html#',
+            callback=self.parse
+        )
 
-    def parse(self, response):
+    def parse2(self, response):
         self.logger.info(f'Extract link to each state in {response}')
         #get all hyperlinks of states on the home page
-        stateLinks = response.css('.ngo-state-btn-block div ul li a::attr("href")')
+        stateLinks = self.driver.find_elements_by_css_selector('.ngo-state-btn-block div ul li a::attr("href")')
         #for each links, call function parseState
-        yield from response.follow_all(stateLinks, self.parseState)      
+        for link in stateLinks:
+            url = link.get_attribute("href")
+            yield Request(url, callback=self.parseState)    
         # Note the website splits the NGOs by state and also by NGO sectors, so there may be duplicates. These can be processed later.
 
-    def parseState(self, response):
+    def parse(self, response):
         self.logger.info(f'Extract information to each ngo in {response}')
         # Scroll to the bottom of the page to load all elements
         self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        for i in response.css('div.ngo-found-block'):
+            ngo = Ngo()
+            ngo['name'] = i.css('div.foundation-title::text').get()
+            yield ngo
         """
         # wait for the more details button to be present
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, "//*[@id='ngos-more-details']/a//@href")))
