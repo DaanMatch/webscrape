@@ -20,27 +20,31 @@ class Ngo(scrapy.Item):
 class OneIndiaSpider(scrapy.Spider):
     name = 'oneindia_spider'
     allowed_domains = ["oneindia.com"]
-
+    
     def start_requests(self):
+        start_url = 'https://www.oneindia.com/ngos.html'
         yield SeleniumRequest(
-            url='https://www.oneindia.com/ngos-in-chandigarh-6.html#',
+            url=start_url,
             callback=self.parse
         )
 
-    def parse2(self, response):
+    def parse(self, response):
         self.logger.info(f'Extract link to each state in {response}')
         #get all hyperlinks of states on the home page
-        stateLinks = self.driver.find_elements_by_css_selector('.ngo-state-btn-block div ul li a::attr("href")')
+        stateLinks = response.css('.ngo-state-btn-block div ul li a::attr("href")')
         #for each links, call function parseState
         for link in stateLinks:
-            url = link.get_attribute("href")
-            yield Request(url, callback=self.parseState)    
+            url = link.get()
+            yield SeleniumRequest(
+                url=url,
+                callback=self.parseState,
+                script='window.scrollTo(0, document.body.scrollHeight);',
+            ) 
         # Note the website splits the NGOs by state and also by NGO sectors, so there may be duplicates. These can be processed later.
 
-    def parse(self, response):
+    def parseState(self, response):
         self.logger.info(f'Extract information to each ngo in {response}')
         # Scroll to the bottom of the page to load all elements
-        self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         for i in response.css('div.ngo-found-block'):
             ngo = Ngo()
             ngo['name'] = i.css('div.foundation-title::text').get()
@@ -75,8 +79,4 @@ class OneIndiaSpider(scrapy.Spider):
             yield ngo 
             ngo_count += 1
         """
-
-    
-    def closed(self, reason):
-        self.driver.quit()
 
