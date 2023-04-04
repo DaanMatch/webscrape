@@ -2,3 +2,7 @@ example/venv/*
 _pycahce_/*
 *.pyc
 .vscode/*
+*.pyc
+example/ngodarpan_scraper/ngodarpan_scraper/__pycache__/settings.cpython-38.pyc
+example/ngodarpan_scraper/ngodarpan_scraper/spiders/__pycache__/ngodarpan_spider.cpython-38.pyc
+example/ngodarpan_scraper/ngodarpan_scraper/spiders/__pycache__/oneindia_spider.cpython-38.pyc
