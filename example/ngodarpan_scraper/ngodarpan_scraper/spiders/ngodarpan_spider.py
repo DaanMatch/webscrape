@@ -56,9 +56,3 @@ class NgodarpanSpider(scrapy.Spider):
         except:
             self.logger.info(f"Failed at parseStates {response}.")
             pass
-
-
-
-
-#        nextPage = response.css(".pagination > a::attr('href')")
-#        yield from response.follow_all(nextPage, self.parseState) 
