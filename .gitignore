@@ -1,3 +1,4 @@
 example/venv/*
 _pycahce_/*
 *.pyc
+.vscode/*
