@@ -20,13 +20,18 @@ class NgosIndiaSpider(scrapy.Spider):
         #for each links, call function parseNGo
         yield from response.follow_all(ngoLinks, self.parseNGO)
         #gets all links from the pagination
+
         ngo_next = response.css(".lcp_paginator li a::attr('href')")
         #call parseState on every links 
         yield from response.follow_all(ngo_next,self.parseState) 
+        
 
     def parseNGO(self, response):
         self.logger.info(f'Extract ngo information in {response}')
         #get all hyperlinks of ngos on the state page
         yield {
-            'data': response.css('.npos-postcontent p ::text').getall()
+            ##run another script for website urls 
+            ##'website' : response
+            'name' : response.css('h1.npos-postheader ::text').getall()
+            ##'data': response.css('.npos-postcontent p ::text').getall()
         }
