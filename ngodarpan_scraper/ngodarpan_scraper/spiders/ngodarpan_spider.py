@@ -31,7 +31,7 @@ class NgodarpanSpider(scrapy.Spider):
                     'SectorWorking': row.xpath('td[5]//text()').extract_first()
                 }
             # each table has many pages
-            nextPage = response.css(".pagination > a::attr(href)")
+            nextPage = response.css(".pagination li a::attr(href)")
             yield from response.follow_all(nextPage, self.parseState)
         except:
             self.logger.info(f"Failed at parseStates {response}.")
